@@ -35,7 +35,6 @@ def get_sp500_tickers():
     tables = pd.read_html(url)
     df = tables[0]
     logger.info(f"Retrieved {len(df['Symbol'])} S&P 500 tickers")
-    # 티커와 영문 회사명을 함께 반환
     return list(zip(df['Symbol'], df['Security']))
   except Exception as e:
     logger.error(f"Failed to fetch S&P 500 tickers: {e}")
@@ -94,7 +93,7 @@ def check_cross(ticker):
 
   except Exception as e:
     logger.error(f"{ticker}: Error in check_cross: {e}")
-    with open("failed_snp_tickers.log", "a") as f:
+    with open("failed_tickers.log", "a") as f:
       f.write(f"{datetime.now()} - {ticker}: {e}\n")
     return None, None
 
@@ -205,9 +204,11 @@ def run_cross_check():
 
 def should_run_now():
   now = datetime.now()
-  is_weekday = now.weekday() < 5
-  is_nighttime = (now.hour >= 18) or (now.hour < 6)
-  return is_weekday and is_nighttime
+  is_weekday = now.weekday() < 5  # Monday to Friday
+  is_trading_hours = (now.hour > 22 or (
+      now.hour == 22 and now.minute >= 30)) or (
+                         now.hour < 5)  # 10:30 PM to 5:00 AM KST
+  return is_weekday and is_trading_hours
 
 
 if __name__ == "__main__":
