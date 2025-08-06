@@ -11,5 +11,8 @@ pip freeze > requirements.txt
 ```
 
 ```
-nohup 
+nohup python3 kospi.py > output_files/logs/nohup.out 2>&1 &
+
+nohup python3 snp500.py > output_files/logs/nohup.out 2>&1 &
+
 ```
