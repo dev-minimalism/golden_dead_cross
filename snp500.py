@@ -1,11 +1,12 @@
 import logging
 import os
-import pandas as pd
-import requests
 import threading
 import time
-import yfinance as yf
 from datetime import datetime
+
+import pandas as pd
+import requests
+import yfinance as yf
 
 # Logging 설정
 logging.basicConfig(
@@ -53,7 +54,7 @@ def check_cross(ticker):
 
     if len(df) < 25:
       logger.warning(
-        f"{ticker}: Insufficient data (length={len(df)}, need at least 25)")
+          f"{ticker}: Insufficient data (length={len(df)}, need at least 25)")
       return None, None
 
     if 'Close' not in df.columns:
@@ -66,7 +67,7 @@ def check_cross(ticker):
 
     if len(df) < 2:
       logger.warning(
-        f"{ticker}: Not enough data after calculating moving averages (length={len(df)})")
+          f"{ticker}: Not enough data after calculating moving averages (length={len(df)})")
       return None, None
 
     yesterday = df.iloc[-2]
@@ -80,15 +81,15 @@ def check_cross(ticker):
 
     if yesterday_sma5 < yesterday_sma20 and today_sma5 > today_sma20:
       logger.info(
-        f"{ticker}: Golden Cross detected (SMA5: {today_sma5:.2f}, SMA20: {today_sma20:.2f})")
+          f"{ticker}: Golden Cross detected (SMA5: {today_sma5:.2f}, SMA20: {today_sma20:.2f})")
       return 'golden', price
     elif yesterday_sma5 > yesterday_sma20 and today_sma5 < today_sma20:
       logger.info(
-        f"{ticker}: Dead Cross detected (SMA5: {today_sma5:.2f}, SMA20: {today_sma20:.2f})")
+          f"{ticker}: Dead Cross detected (SMA5: {today_sma5:.2f}, SMA20: {today_sma20:.2f})")
       return 'dead', price
     else:
       logger.debug(
-        f"{ticker}: No cross detected (SMA5={today_sma5:.2f}, SMA20={today_sma20:.2f})")
+          f"{ticker}: No cross detected (SMA5={today_sma5:.2f}, SMA20={today_sma20:.2f})")
       return None, price
 
   except Exception as e:
@@ -143,7 +144,7 @@ def start_heartbeat(heartbeat_interval=3600):
 # 전체 점검 루틴
 def run_cross_check():
   logger.info(
-    f"Running check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+      f"Running check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
   ticker_pairs = get_sp500_tickers()
   total = len(ticker_pairs)
   start_time = time.time()
@@ -222,7 +223,11 @@ if __name__ == "__main__":
     start_heartbeat(heartbeat_interval=3600)
 
     while True:
-      run_cross_check()
+      if should_run_now():
+        run_cross_check()
+      else:
+        logger.info(
+            f"Skip: Not in target time ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})")
       time.sleep(600)
 
   except KeyboardInterrupt:
