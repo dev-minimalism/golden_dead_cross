@@ -1,0 +1,6 @@
+/.idea/
+/.venv/
+/venv/
+failed_tickers.log
+snp500_monitor.log
+*.log
